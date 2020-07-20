@@ -1,60 +1,69 @@
 import "./navigation.css";
 
-export default {
-  destination: "",
-  // currentPage: "",
-  activeLink: "",
+const navigationListMarkup = (elements) => {
+  return `
+    <ul class="navigationList">
+        ${navigationListItemMarkup(elements)}
+    </ul>
+    `;
+};
+const navigationListItemMarkup = (elements) => {
+  return elements.reduce((acc, element) => {
+    acc += `
+      <li class="navigationListItem" data-navigationlink="${element}">
+        <a href="#">${element}</a>
+      </li>`;
+    return acc;
+  }, "");
+};
 
-  creatLinks(destination, elements) {
-    this.destination = destination;
+export default {
+  refs: {},
+  activeLinks: {},
+
+  createLinks(destination, elements) {
+    this.refs[destination.classList[0]] = destination;
     destination.innerHTML = navigationListMarkup(elements);
     const activeLink = destination.querySelector("[data-navigationlink]");
     activeLink.classList.add("activeLink");
-    this.activeLink = activeLink;
-    // this.currentPage = activeLink.dataset.navigationlink;
+    this.activeLinks[destination.classList[0]] = activeLink;
   },
 
   getActiveLink(e) {
     e.preventDefault();
     if (e.target.nodeName === "LI" || e.target.nodeName === "A") {
-      const dataAtribute = e.target.dataset.navigationlink
+      const dataAttribute = e.target.dataset.navigationlink
         ? e.target.dataset.navigationlink
         : e.target.closest("[data-navigationlink]").dataset.navigationlink;
-      this.setActiveLink(dataAtribute);
-      return dataAtribute;
+      this.setActiveLink(e, dataAttribute);
+      return dataAttribute;
     }
   },
 
-  setActiveLink(dataAtribute) {
-    console.log(this.destination);
-    this.activeLink.classList.remove(".activeLink");
-    const target = this.destination.querySelector(
-      `[data-navigationlink=${dataAtribute}]`
+  setActiveLink(e, dataAttribute) {
+    this.activeLinks[e.currentTarget.classList[0]].classList.remove(
+      "activeLink"
+    );
+    const target = this.refs[e.currentTarget.classList[0]].querySelector(
+      `[data-navigationlink=${dataAttribute}]`
     );
     target.classList.add("activeLink");
-    console.log(target);
+    this.activeLinks[e.currentTarget.classList[0]] = target;
   },
 };
 
-const navigation = (destination, elements) => {
-  const navigationListMarkup = (elements) => {
-    return `
-    <ul class="navigation">
-    ${navigationListItemMarkup(elements)}
-    </ul>
-    `;
-  };
+// For use
+// 1. Create data
+// const elements = ['Home', 'About', 'Contacts', 'Products', 'Cart'];
 
-  const navigationListItemMarkup = (elements) => {
-    return elements.reduce((acc, element) => {
-      acc += `
-      <li class="navigationListItem" data-navigationlink="${element}">
-      <a href="#">${element}</a>
-      </li>`;
-      return acc;
-    }, "");
-  };
-  destination.innerHTML = navigationListMarkup(elements);
-};
+// 2. Get ref
+// const headerNavigation = document.querySelector('.headerNavigation');
 
-export default navigation;
+// const getPage = (e) => {
+//   const link = navigation.getActiveLink(e)
+//   console.log(link)
+// }
+
+// 3. Get event
+// navigation.createLinks(headerNavigation, elements);
+// headerNavigation.addEventListener('click', getPage);
